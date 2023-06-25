@@ -8,20 +8,22 @@ module.exports = {
   },
 }
 
-const cartingTabOpenedHandler = ({ tabId, detail: { uri, cookieStore } }) => {
-  const tab = jancy.tabManager.getTab({ uuid: tabId });
+const cartingTabOpenedHandler = async ({ detail: { uri, cookieStore } }) => {
+  const tab = await jancy.tabManager.createTab();
   const partition = jancy.partitions.getPartition(tab.partitionId);
-
   const newCookies = cookieStore.cookies.map(setCookie);
+  const window = jancy.windowManager.getWindow({ which: 'focused' });
 
-  jancy.partitions.addCookies(partition, newCookies)
-    .then(navigate.bind(null, tab, uri));
+  await setTabsForWindow(window, [tab]);
+  await setCookiesForPartition(partition, newCookies);
+  await navigate(tab, uri);
 };
 
-const navigate = (tab, uri) => jancy.tabManager.navigateTab(tab, {
-  url: uri,
-  mode: 'url',
-});
+const navigate = (tab, url) => jancy.tabManager.navigateTab(tab, { url, mode: 'url' });
+
+const setTabsForWindow = (window, tabs) => jancy.tabManager.launchTabs(window, tabs, {});
+
+const setCookiesForPartition = (partition, cookies) => jancy.partitions.addCookies(partition, cookies);
 
 const setCookie = cookie => jancy.partitions.makeCookie({
   name: cookie.name || cookie.key,

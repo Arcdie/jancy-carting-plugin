@@ -173,13 +173,10 @@ const ticketsData = {
 const button = document.getElementById('go');
 
 button.onclick = () => {
-  const { tabId } = jancyAPI.getTabInfo();
-
   jancyAPI.ipc.send('action', {
     type: 'dispatch',
     action: 'carting:tab:open',
     args: {
-      tabId,
       detail: {
         uri: ticketsData.checkoutURL,
         cookieStore: {
