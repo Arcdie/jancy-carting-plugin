@@ -32,10 +32,8 @@ const cartingTabOpenedHandler = async ({ detail: { uri, cookieStore } }) => {
 
 const navigate = (tab, url) => jancy.tabManager.navigateTab(tab, { url, mode: 'url' });
 
-const setTabsForWindow = (window, tabs) => new Promise(async (res) => {
-  await jancy.tabManager.launchTabs(window, tabs, {});
-  setTimeout(res, 300);
-});
+const setTabsForWindow = (window, tabs) =>
+  new Promise(res => jancy.tabManager.launchTabs(window, tabs, {}).then(setTimeout(res, 300)));
 
 const setCookiesForPartition = (partition, cookies) => jancy.partitions.addCookies(partition, cookies);
 
