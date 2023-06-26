@@ -9,19 +9,33 @@ module.exports = {
 }
 
 const cartingTabOpenedHandler = async ({ detail: { uri, cookieStore } }) => {
-  const tab = await jancy.tabManager.createTab();
-  const partition = jancy.partitions.getPartition(tab.partitionId);
   const newCookies = cookieStore.cookies.map(setCookie);
+
+  const tab = await jancy.tabManager.createTab();
+  jancy.console.log('jancy.tabManager.createTab completed successfully (1 / 6)');
+
+  const partition = jancy.partitions.getPartition(tab.partitionId);
+  jancy.console.log('jancy.partitions.getPartition completed successfully (2 / 6)');
+
   const window = jancy.windowManager.getWindow({ which: 'focused' });
+  jancy.console.log('jancy.windowManager.getWindow completed successfully (3 / 6)');
 
   await setTabsForWindow(window, [tab]);
+  jancy.console.log('setTabsForWindow completed successfully (4 / 6)');
+
   await setCookiesForPartition(partition, newCookies);
+  jancy.console.log('setCookiesForPartition completed successfully (5 / 6)');
+
   await navigate(tab, uri);
+  jancy.console.log('navigate completed successfully (6 / 6)');
 };
 
 const navigate = (tab, url) => jancy.tabManager.navigateTab(tab, { url, mode: 'url' });
 
-const setTabsForWindow = (window, tabs) => jancy.tabManager.launchTabs(window, tabs, {});
+const setTabsForWindow = (window, tabs) => new Promise(async (res) => {
+  await jancy.tabManager.launchTabs(window, tabs, {});
+  setTimeout(res, 300);
+});
 
 const setCookiesForPartition = (partition, cookies) => jancy.partitions.addCookies(partition, cookies);
 
